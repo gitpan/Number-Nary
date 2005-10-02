@@ -9,13 +9,13 @@ Number::Nary - encode and decode numbers as n-ary strings
 
 =head1 VERSION
 
-version 0.01
+version 0.02
 
  $Id$
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use Carp qw(croak);
 use List::MoreUtils qw(uniq);
@@ -29,11 +29,13 @@ our @EXPORT_OK = qw(n_encode n_decode);
 This module lets you convert numbers into strings that encode the number using
 the digit set of your choice.
 
+  my ($encode_sub, $decode_sub) = n_codec('01234'); # base five
+
+  my $number = $encode_sub('8675309'); # jenny's number for one-handed folk
+
 =head1 FUNCTIONS
 
 =head2 C<< n_codec($digits) >>
-
-  my ($encode_sub, $decode_sub) = n_codec('012'); # trinary
 
 This routine returns a reference to a subroutine which will encode numbers into
 the given set of digits and a reference which will do the reverse operation.
@@ -125,7 +127,20 @@ L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Number-Nary>.
 I will be notified, and then you'll automatically be notified of progress on
 your bug as I make changes.
 
+=head1 SECRET ORIGINS
+
+I originally used this system to produce unique worksheet names in Excel.  I
+had a large report generating system that used Win32::OLE, and to keep track of
+what was where I'd Storable-digest the options used to produce each worksheet
+and then n-ary encode them into the set of characters that were valid in
+worksheet names.  Working out that set of characters was by far the hardest
+part.
+
 =head1 ACKNOWLEDGEMENTS
+
+Thanks, Jesse Vincent.  When I remarked, on IRC, that this would be trivial to
+do, he said, "Great.  Would you mind doing it?"  (Well, more or less.)  It was
+a fun little distraction.
 
 =head1 COPYRIGHT & LICENSE
 
@@ -136,4 +151,4 @@ under the same terms as Perl itself.
 
 =cut
 
-1; # End of Number::Nary
+1; # my ($encode_sub, $decode_sub) = n_codec('8675309'); # jennynary
