@@ -14,5 +14,5 @@ WriteMakefile(
         'List::MoreUtils' => 0.09,
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-    clean               => { FILES => 'Number-Nary-*' },
+    clean               => { FILES => 'Number-Nary-* cover_db' },
 );

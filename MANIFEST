@@ -5,6 +5,9 @@ Makefile.PL
 README
 lib/Number/Nary.pm
 t/00-load.t
+t/basic.t
+t/aref.t
+t/multichar.t
 t/boilerplate.t
 t/pod-coverage.t
 t/pod.t

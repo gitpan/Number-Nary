@@ -1,5 +1,9 @@
 Revision history for Number-Nary
 
+0.04    2005-11-07
+        allow array references containing digits
+        allow multi-character digits
+
 0.02    2005-10-01, five minutes later
         added prereq listings
         improved documentation
