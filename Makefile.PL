@@ -12,7 +12,8 @@ WriteMakefile(
         'Carp'            => 0,
         'Test::More'      => 0,
         'List::MoreUtils' => 0.09,
+        'Sub::Exporter'   => 0.90,
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-    clean               => { FILES => 'Number-Nary-* cover_db' },
+    clean               => { FILES => 'Number-Nary-*' },
 );

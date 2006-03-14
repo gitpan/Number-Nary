@@ -9,20 +9,31 @@ Number::Nary - encode and decode numbers as n-ary strings
 
 =head1 VERSION
 
-version 0.04
+version 0.05
 
- $Id: /my/rjbs/code/nary/trunk/lib/Number/Nary.pm 16007 2005-11-07T13:08:21.179599Z rjbs  $
+ $Id$
 
 =cut
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 use Carp qw(croak);
-use List::MoreUtils qw(all uniq);
+use List::MoreUtils qw(uniq);
 
-use base qw(Exporter);
-our @EXPORT = qw(n_codec);
-our @EXPORT_OK = qw(n_encode n_decode);
+use Sub::Exporter -setup => {
+  exports => [ qw(n_codec n_encode n_decode) ],
+  groups  => {
+    default    => [ qw(n_codec) ],
+    codec_pair => \&_generate_codec_pair,
+  }
+};
+
+sub _generate_codec_pair {
+  my (undef, undef, $arg, undef) = @_;
+  my %pair;
+  @pair{qw(encode decode)} = n_codec($arg->{digits});
+  return \%pair;
+}
 
 =head1 SYNOPSIS
 
@@ -35,49 +46,25 @@ the digit set of your choice.
 
 =head1 FUNCTIONS
 
-=head2 C<< n_codec >>
-
- my ($enc, $dec) = n_codec("123456890"); # we hate seven
- my ($enc, $dec) = n_codec([ qw( foo bar baz ) ]); # metasyntacticary
+=head2 C<< n_codec($digits) >>
 
 This routine returns a reference to a subroutine which will encode numbers into
 the given set of digits and a reference which will do the reverse operation.
 
-C<$digits> may be a string, which will be split into individual characters, or
-an array reference of the digits to be used.
-
-This routine will croak if the digit string contains repeated digits or digits
-of non-uniform length.
+This routine will croak if the digit string contains repeated digits.
 
 The encode sub will croak if it is given input other than a non-negative
 integer. 
 
 The decode sub will croak if given a string that contains characters not in the
-digit string, or if the given string's length is not a multiple of the digit
-length.
+digit string.
 
 =cut
 
 sub n_codec {
 	my ($base_string) = @_;
 
-  my @digits;
-  my $digit_size = 1;
-  if (ref $base_string) {
-    if (ref $base_string eq 'ARRAY') {
-      @digits = @$base_string;
-      $digit_size = length $digits[0];
-      croak "digits are not of uniform length"
-        unless all { length $_ eq $digit_size } @digits;
-    } else {
-      croak "invalid datatype for base string: "
-          . (lc ref $base_string)
-          . " reference";
-    }
-  } else { 
-    @digits = split //, $base_string;
-  }
-
+	my @digits = split //, $base_string;
   croak "base string contains repeated characters"
     unless @digits == uniq @digits;
 
@@ -86,7 +73,8 @@ sub n_codec {
 
     croak "value isn't an non-negative integer"
       if not defined $value
-      or $value !~ /\A\d+\z/;
+      or $value !~ /\A\d+\z/
+      or ($value < 0);
 
       my $string = '';
       while (1) {
@@ -103,11 +91,7 @@ sub n_codec {
 
   my $decode_sub = sub {
     my ($string) = @_;
-
-    croak "string to decode is not a multiple of digit size in length"
-      unless (length $string) % $digit_size == 0;
-
-    my @found_digits = $string =~ /(.{$digit_size})/g;
+    my @found_digits = split //, $string;
     return 0 unless @found_digits;
 
     my $value    = 0;
@@ -129,18 +113,28 @@ This encodes the given value into a string using the given digit string.  It is
 written in terms of C<n_codec>, above, so it's not efficient at all for
 multiple uses in one process.
 
-This routine is not exported by default.
-
 =head2 C<< n_decode($value, $digits) >>
 
 This is the decoding equivalent to C<n_encode>, above.
-
-This routine is not exported by default.
 
 =cut
 
 sub n_encode { (n_codec($_[1]))[0]->($_[0]) }
 sub n_decode { (n_codec($_[1]))[1]->($_[0]) }
+
+=head1 EXPORTS
+
+C<n_codec> is exported by default.  C<n_encode> and C<n_decode> are exported.
+
+Pairs of routines to encode and decode may be imported by using the
+C<codec_pair> group as follows:
+
+  use Number::Nary -codec_pair => { digits => '01234567', -suffix => '8' };
+
+  my $encoded = encode8($number);
+  my $decoded = decode8($encoded);
+
+For more information on this kind of exporting, see L<Sub::Exporter>.
 
 =head1 AUTHOR
 

@@ -1,13 +1,12 @@
 Changes
 MANIFEST
-META.yml # Will be created by "make dist"
 Makefile.PL
 README
 lib/Number/Nary.pm
 t/00-load.t
 t/basic.t
-t/aref.t
-t/multichar.t
 t/boilerplate.t
+t/pair.t
 t/pod-coverage.t
 t/pod.t
+META.yml                                 Module meta-data (added by MakeMaker)

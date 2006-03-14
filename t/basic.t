@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 12;
+use Test::More tests => 10;
 
 BEGIN { use_ok('Number::Nary'); }
 
@@ -22,16 +22,11 @@ BEGIN { use_ok('Number::Nary'); }
   eval { $enc->("YOUR FACE"); };
   like($@, qr/integer/, "can't encode strings");
 
-  eval { $enc->(undef); };
-  like($@, qr/integer/, "can't encode undef");
-
   eval { $enc->(-10); };
   like($@, qr/non-negative/, "can't encode negative ints");
 
   eval { $dec->('BABELFISH'); };
   like($@, qr/invalid/, "can't decode a value with unknown digits");
-
-  cmp_ok($dec->(''), '==', 0, "empty string is always zero");
 }
 
 { # n_encode and n_decode
@@ -46,6 +41,7 @@ BEGIN { use_ok('Number::Nary'); }
     27,
     "27 from normal binary"
   );
+
 }
 
 eval { n_codec('ABCDEE'); };
