@@ -9,13 +9,13 @@ Number::Nary - encode and decode numbers as n-ary strings
 
 =head1 VERSION
 
-version 0.100
+version 0.102
 
- $Id: /my/cs/projects/nary/trunk/lib/Number/Nary.pm 22024 2006-05-12T03:27:50.632712Z rjbs  $
+ $Id: /my/cs/projects/Number-Nary/trunk/lib/Number/Nary.pm 29659 2007-01-03T23:09:59.377348Z rjbs  $
 
 =cut
 
-our $VERSION = '0.100';
+our $VERSION = '0.102';
 
 use Carp qw(croak);
 use List::MoreUtils qw(uniq);
@@ -30,8 +30,12 @@ use Sub::Exporter -setup => {
 
 sub _generate_codec_pair {
   my (undef, undef, $arg, undef) = @_;
+
+  my $local_arg = {%$arg};
+  my $digits    = delete $local_arg->{digits};
+
   my %pair;
-  @pair{qw(encode decode)} = n_codec($arg->{digits});
+  @pair{qw(encode decode)} = n_codec($digits, $local_arg);
   return \%pair;
 }
 
@@ -62,7 +66,7 @@ composed of arbitrary digit sets.
 
 =head2 n_codec
 
-  my ($encode_sub, $decode_sub) = n_codec($digit_string);
+  my ($encode_sub, $decode_sub) = n_codec($digit_string, \%arg);
 
 This routine returns a reference to a subroutine which will encode numbers into
 the given set of digits and a reference which will do the reverse operation.
@@ -78,10 +82,15 @@ The decode sub will croak if given a string that contains characters not in the
 digit string, or if the lenth of the string to decode is not a multiple of the
 length of the component digits.
 
+Valid arguments to be passed in the second parameter are:
+
+  predecode  - if given, this coderef will be used to preprocess strings
+               passed to the decoder
+
 =cut
 
 sub n_codec {
-	my ($base_string) = @_;
+	my ($base_string, $arg) = @_;
 
 	my @digits;
   my $length = 1;
@@ -118,6 +127,8 @@ sub n_codec {
   my $decode_sub = sub {
     my ($string) = @_;
     return unless $string;
+    
+    $string = $arg->{predecode}->($string) if $arg->{predecode};
 
     my $places = length($string) / $length;
 
