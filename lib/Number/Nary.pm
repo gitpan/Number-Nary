@@ -9,15 +9,14 @@ Number::Nary - encode and decode numbers as n-ary strings
 
 =head1 VERSION
 
-version 0.102
-
- $Id: /my/cs/projects/Number-Nary/trunk/lib/Number/Nary.pm 29659 2007-01-03T23:09:59.377348Z rjbs  $
+version 0.103
 
 =cut
 
-our $VERSION = '0.102';
+our $VERSION = '0.103';
 
 use Carp qw(croak);
+use Scalar::Util qw(reftype);
 use List::MoreUtils qw(uniq);
 
 use Sub::Exporter -setup => {
@@ -72,15 +71,17 @@ This routine returns a reference to a subroutine which will encode numbers into
 the given set of digits and a reference which will do the reverse operation.
 
 The digits may be given as a string or an arrayref.  This routine will croak if
-the set of digits contains repeated digits, or if not all digits are of the
-same length of characters.
+the set of digits contains repeated digits, or if there could be ambiguity
+in decoding a string of the given digits.  (Number::Nary is overly aggressive
+about weeding out possibly ambiguous digit sets, for the sake of the author's
+sanity.)
 
 The encode sub will croak if it is given input other than a non-negative
 integer. 
 
 The decode sub will croak if given a string that contains characters not in the
-digit string, or if the lenth of the string to decode is not a multiple of the
-length of the component digits.
+digit string, or, for fixed-string digit sets, if the lenth of the string to
+decode is not a multiple of the length of the component digits.
 
 Valid arguments to be passed in the second parameter are:
 
@@ -89,21 +90,85 @@ Valid arguments to be passed in the second parameter are:
 
 =cut
 
-sub n_codec {
-	my ($base_string, $arg) = @_;
+sub _split_len_iterator {
+  my ($length) = @_;
 
-	my @digits;
-  my $length = 1;
-  if (eval { @digits = @$base_string; 1 }) {
-    my @lengths = uniq map { length } @digits;
-    croak "given digits were not of uniform length" unless @lengths == 1;
-    $length = length $digits[0];
-  } else {
-    @digits = split //, $base_string;
+  return sub {
+    my ($string, $callback) = @_;
+
+    my $places = length($string) / $length;
+
+    croak "string length is not a multiple of digit length"
+      unless $places == int $places;
+
+    for my $position (1 .. $places) {
+      my $digit = substr $string, (-$length * $position), $length;
+      $callback->($digit, $position);
+    }
+  }
+}
+
+sub _split_digit_iterator {
+  my ($digits) = @_;
+
+  sub {
+    my ($string, $callback) = @_;
+    my @digits;
+    ITER: while (length $string) {
+      for (@$digits) {
+        if (index($string, $_) == 0) {
+          push @digits, substr($string, 0, length $_, '');
+          next ITER;
+        }
+      }
+      croak "could not decompose string '$string'";
+    }
+
+    for (1 .. @digits) {
+      $callback->($digits[-$_], $_);
+    }
+  }
+}
+
+sub _set_iterator {
+  my ($digits, $length_ref) = @_;
+
+  croak "digit set is empty" unless @$digits;
+  croak "digit set contains zero-length digit"
+    if do { no warnings 'uninitialized'; grep { ! length $_ } @$digits };
+  croak "digit set contains repeated digits" if @$digits != uniq @$digits;
+
+  my @lengths = uniq map { length } @$digits;
+
+  return _split_len_iterator($lengths[0]) if @lengths == 1;
+
+  for my $i (0 .. $#$digits) {
+    my $di = $digits->[$i];
+    for my $j (0 ..$#$digits) {
+      next if $i == $j;
+      my $dj = $digits->[$j];
+
+      croak "digit set may be ambiguous" if index($di, $dj) == 0;
+    }
   }
 
-  croak "digit list contains repeated characters"
-    unless @digits == uniq @digits;
+  return _split_digit_iterator($digits);
+}
+
+sub n_codec {
+	my ($digit_set, $arg) = @_;
+
+	my @digits;
+
+  if (ref $digit_set) {
+    croak "digit set must be a string or arrayref"
+      unless reftype $digit_set eq 'ARRAY';
+    @digits = @$digit_set;
+  } else {
+    @digits = split //, $digit_set;
+  }
+
+  my $iterator = _set_iterator(\@digits);
 
   my $encode_sub = sub {
     my ($value) = @_;
@@ -130,19 +195,16 @@ sub n_codec {
     
     $string = $arg->{predecode}->($string) if $arg->{predecode};
 
-    my $places = length($string) / $length;
+    my $value = 0;
 
-    croak "string length is not a multiple of digit length"
-      unless $places == int $places;
-
-    my $value    = 0;
-
-    for my $position (reverse 1 .. $places) {
-      my $digit = substr $string, (-$length * $position), $length;
+    $iterator->($string, sub {
+      my ($digit, $position) = @_;
       croak "string to decode contains invalid digits"
         unless exists $digit_value{$digit};
+
       $value += $digit_value{$digit}  *  @digits ** ($position++ - 1);
-    }
+    });
+
     return $value;
   };
 
@@ -209,6 +271,10 @@ part.
 Thanks, Jesse Vincent.  When I remarked, on IRC, that this would be trivial to
 do, he said, "Great.  Would you mind doing it?"  (Well, more or less.)  It was
 a fun little distraction.
+
+Mark Jason Dominus and Michael Peters offered some useful advice on how to weed
+out ambiguous digit sets, enabling me to allow digit sets made up of
+varying-length digits.
 
 =head1 COPYRIGHT & LICENSE
 

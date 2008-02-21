@@ -1,9 +1,11 @@
 --- #YAML:1.0
 name:                Number-Nary
-version:             0.102
+version:             0.103
 abstract:            encode and decode numbers as n-ary strings
 license:             perl
-generated_by:        ExtUtils::MakeMaker version 6.31
+author:              
+    - Ricardo Signes <rjbs@cpan.org>
+generated_by:        ExtUtils::MakeMaker version 6.42
 distribution_type:   module
 requires:     
     Carp:                          0
@@ -11,7 +13,5 @@ requires:
     Sub::Exporter:                 0.9
     Test::More:                    0
 meta-spec:
-    url:     http://module-build.sourceforge.net/META-spec-v1.2.html
-    version: 1.2
-author:
-    - Ricardo Signes <rjbs@cpan.org>
+    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
+    version: 1.3
