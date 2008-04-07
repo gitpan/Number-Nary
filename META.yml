@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                Number-Nary
-version:             0.103
+version:             0.104
 abstract:            encode and decode numbers as n-ary strings
 license:             perl
 author:              
