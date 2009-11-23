@@ -24,7 +24,8 @@ requires:
   List::MoreUtils: 0.09
   Sub::Exporter: 0.9
   Test::More: 0
+  UDCode: 0
   perl: 5.6.0
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.107
+version: 0.108
