@@ -1,0 +1,29 @@
+{
+   "resources" : {
+      "repository" : "http://github.com/rjbs/number-nary"
+   },
+   "generated_by" : "Dist::Zilla version 1.100160",
+   "meta-spec" : {
+      "version" : 1.4,
+      "url" : "http://module-build.sourceforge.net/META-spec-v1.4.html"
+   },
+   "version" : "0.100311",
+   "name" : "Number-Nary",
+   "author" : [
+      "Ricardo Signes <rjbs@cpan.org>"
+   ],
+   "license" : "perl",
+   "requires" : {
+      "Scalar::Util" : "0.90",
+      "English" : 0,
+      "UDCode" : "0",
+      "ExtUtils::MakeMaker" : "6.11",
+      "Sub::Exporter" : "0",
+      "Carp" : "0",
+      "perl" : "5.006",
+      "Test::More" : "0",
+      "List::MoreUtils" : "0.09"
+   },
+   "abstract" : "encode and decode numbers as n-ary strings"
+}
+

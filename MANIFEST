@@ -1,13 +1,13 @@
 Changes
 LICENSE
 MANIFEST
+META.json
 META.yml
 Makefile.PL
 README
 dist.ini
 lib/Number/Nary.pm
 t/00-load.t
-t/author-critic.t
 t/basic.t
 t/boilerplate.t
 t/google.t

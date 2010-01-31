@@ -1,6 +1,8 @@
 Revision history for Number-Nary
 
-1.100310  2010-01-31 15:12:31 America/New_York
+0.100311  2010-01-31 15:53:17 America/New_York
+
+1.100310  2010-01-31 15:13:19 America/New_York
         rebuild distribution using Dist::Zilla
 
 0.108   2009-11-22

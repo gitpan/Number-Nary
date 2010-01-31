@@ -18,4 +18,6 @@ requires:
   Test::More: 0
   UDCode: 0
   perl: 5.006
-version: 1.100310
+resources:
+  repository: http://github.com/rjbs/number-nary
+version: 0.100311
