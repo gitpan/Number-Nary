@@ -1,23 +1,13 @@
-package Number::Nary;
 use 5.006;
 use warnings;
 use strict;
-
-=head1 NAME
-
-Number::Nary - encode and decode numbers as n-ary strings
-
-=head1 VERSION
-
-version 0.108
-
-=cut
-
-our $VERSION = '0.108';
+package Number::Nary;
+our $VERSION = '1.100310';
+# ABSTRACT: encode and decode numbers as n-ary strings
 
 use Carp qw(croak);
-use Scalar::Util qw(reftype);
-use List::MoreUtils qw(uniq);
+use Scalar::Util 0.90 qw(reftype);
+use List::MoreUtils 0.09 qw(uniq);
 use UDCode ();
 
 use Sub::Exporter -setup => {
@@ -39,60 +29,6 @@ sub _generate_codec_pair {
   return \%pair;
 }
 
-=head1 SYNOPSIS
-
-This module lets you convert numbers into strings that encode the number using
-the digit set of your choice.  For example, you could get routines to convert
-to and from hex like so:
-
-  my ($enc_hex, $dec_hex) = n_codec('0123456789ABCDEF');
-
-  my $hex = $enc_hex->(255);  # sets $hex to FF
-  my $num = $dec_hex->('A0'); # sets $num to 160
-
-This would be slow and stupid, since Perl already provides the means to easily
-and quickly convert between decimal and hex representations of numbers.
-Number::Nary's utility comes from the fact that it can encode into bases
-composed of arbitrary digit sets.
-
-  my ($enc, $dec) = n_codec('0123'); # base 4 (for working with nybbles?)
-
-  # base64
-  my ($enc, $dec) = n_codec(
-    join('', 'A' .. 'Z', 'a' .. 'z', 0 .. 9, '+', '/', '=')
-  );
-
-=head1 FUNCTIONS
-
-=head2 n_codec
-
-  my ($encode_sub, $decode_sub) = n_codec($digit_string, \%arg);
-
-This routine returns a reference to a subroutine which will encode numbers into
-the given set of digits and a reference which will do the reverse operation.
-
-The digits may be given as a string or an arrayref.  This routine will croak if
-the set of digits contains repeated digits, or if there could be ambiguity
-in decoding a string of the given digits.  (Number::Nary is overly aggressive
-about weeding out possibly ambiguous digit sets, for the sake of the author's
-sanity.)
-
-The encode sub will croak if it is given input other than a non-negative
-integer. 
-
-The decode sub will croak if given a string that contains characters not in the
-digit string, or, for fixed-string digit sets, if the lenth of the string to
-decode is not a multiple of the length of the component digits.
-
-Valid arguments to be passed in the second parameter are:
-
-  predecode  - if given, this coderef will be used to preprocess strings
-               passed to the decoder
-
-  postencode - if given, this coderef will be used to postprocess strings
-               produced by the encoder
-
-=cut
 
 sub _split_len_iterator {
   my ($length) = @_;
@@ -218,6 +154,78 @@ sub n_codec {
   return ($encode_sub, $decode_sub);
 }
 
+
+# If you really can't stand using n_codec, you could memoize these.
+sub n_encode { (n_codec($_[1]))[0]->($_[0]) }
+sub n_decode { (n_codec($_[1]))[1]->($_[0]) }
+
+
+1; # my ($encode_sub, $decode_sub) = n_codec('8675309'); # jennynary
+
+__END__
+=pod
+
+=head1 NAME
+
+Number::Nary - encode and decode numbers as n-ary strings
+
+=head1 VERSION
+
+version 1.100310
+
+=head1 SYNOPSIS
+
+This module lets you convert numbers into strings that encode the number using
+the digit set of your choice.  For example, you could get routines to convert
+to and from hex like so:
+
+  my ($enc_hex, $dec_hex) = n_codec('0123456789ABCDEF');
+
+  my $hex = $enc_hex->(255);  # sets $hex to FF
+  my $num = $dec_hex->('A0'); # sets $num to 160
+
+This would be slow and stupid, since Perl already provides the means to easily
+and quickly convert between decimal and hex representations of numbers.
+Number::Nary's utility comes from the fact that it can encode into bases
+composed of arbitrary digit sets.
+
+  my ($enc, $dec) = n_codec('0123'); # base 4 (for working with nybbles?)
+
+  # base64
+  my ($enc, $dec) = n_codec(
+    join('', 'A' .. 'Z', 'a' .. 'z', 0 .. 9, '+', '/', '=')
+  );
+
+=head1 FUNCTIONS
+
+=head2 n_codec
+
+  my ($encode_sub, $decode_sub) = n_codec($digit_string, \%arg);
+
+This routine returns a reference to a subroutine which will encode numbers into
+the given set of digits and a reference which will do the reverse operation.
+
+The digits may be given as a string or an arrayref.  This routine will croak if
+the set of digits contains repeated digits, or if there could be ambiguity
+in decoding a string of the given digits.  (Number::Nary is overly aggressive
+about weeding out possibly ambiguous digit sets, for the sake of the author's
+sanity.)
+
+The encode sub will croak if it is given input other than a non-negative
+integer. 
+
+The decode sub will croak if given a string that contains characters not in the
+digit string, or, for fixed-string digit sets, if the lenth of the string to
+decode is not a multiple of the length of the component digits.
+
+Valid arguments to be passed in the second parameter are:
+
+  predecode  - if given, this coderef will be used to preprocess strings
+               passed to the decoder
+
+  postencode - if given, this coderef will be used to postprocess strings
+               produced by the encoder
+
 =head2 n_encode
 
   my $string = n_encode($value, $digit_string);
@@ -232,12 +240,6 @@ multiple uses in one process.
 
 This is the decoding equivalent to C<n_encode>, above.
 
-=cut
-
-# If you really can't stand using n_codec, you could memoize these.
-sub n_encode { (n_codec($_[1]))[0]->($_[0]) }
-sub n_decode { (n_codec($_[1]))[1]->($_[0]) }
-
 =head1 EXPORTS
 
 C<n_codec> is exported by default.  C<n_encode> and C<n_decode> are exported.
@@ -251,18 +253,6 @@ C<codec_pair> group as follows:
   my $decoded = decode8($encoded);
 
 For more information on this kind of exporting, see L<Sub::Exporter>.
-
-=head1 AUTHOR
-
-Ricardo Signes, C<< <rjbs at cpan.org> >>
-
-=head1 BUGS
-
-Please report any bugs or feature requests to
-C<bug-number-nary@rt.cpan.org>, or through the web interface at
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Number-Nary>.
-I will be notified, and then you'll automatically be notified of progress on
-your bug as I make changes.
 
 =head1 SECRET ORIGINS
 
@@ -289,13 +279,16 @@ L<Math::BaseCalc> is in the same problem space wth Number::Nary.  It provides
 only an OO interface and does not reliably handle multicharacter digits or
 recognize ambiguous digit sets.
 
-=head1 COPYRIGHT & LICENSE
+=head1 AUTHOR
 
-Copyright 2005-2006 Ricardo Signes, all rights reserved.
+  Ricardo Signes <rjbs@cpan.org>
 
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2010 by Ricardo Signes.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
 
-1; # my ($encode_sub, $decode_sub) = n_codec('8675309'); # jennynary
