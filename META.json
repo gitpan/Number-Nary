@@ -7,22 +7,21 @@
       "version" : 1.4,
       "url" : "http://module-build.sourceforge.net/META-spec-v1.4.html"
    },
-   "version" : "0.100311",
+   "version" : "1.100311",
    "name" : "Number-Nary",
    "author" : [
       "Ricardo Signes <rjbs@cpan.org>"
    ],
    "license" : "perl",
    "requires" : {
-      "Scalar::Util" : "0.90",
-      "English" : 0,
-      "UDCode" : "0",
-      "ExtUtils::MakeMaker" : "6.11",
-      "Sub::Exporter" : "0",
-      "Carp" : "0",
       "perl" : "5.006",
+      "Scalar::Util" : "0.90",
       "Test::More" : "0",
-      "List::MoreUtils" : "0.09"
+      "UDCode" : 0,
+      "ExtUtils::MakeMaker" : "6.11",
+      "Sub::Exporter" : 0,
+      "List::MoreUtils" : "0.09",
+      "Carp" : 0
    },
    "abstract" : "encode and decode numbers as n-ary strings"
 }

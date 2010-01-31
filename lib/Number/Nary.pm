@@ -2,7 +2,7 @@ use 5.006;
 use warnings;
 use strict;
 package Number::Nary;
-our $VERSION = '0.100311';
+our $VERSION = '1.100311';
 # ABSTRACT: encode and decode numbers as n-ary strings
 
 use Carp qw(croak);
@@ -171,7 +171,7 @@ Number::Nary - encode and decode numbers as n-ary strings
 
 =head1 VERSION
 
-version 0.100311
+version 1.100311
 
 =head1 SYNOPSIS
 
