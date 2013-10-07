@@ -2,7 +2,9 @@ use 5.006;
 use warnings;
 use strict;
 package Number::Nary;
-our $VERSION = '1.100311';
+{
+  $Number::Nary::VERSION = '1.100312';
+}
 # ABSTRACT: encode and decode numbers as n-ary strings
 
 use Carp qw(croak);
@@ -163,6 +165,7 @@ sub n_decode { (n_codec($_[1]))[1]->($_[0]) }
 1; # my ($encode_sub, $decode_sub) = n_codec('8675309'); # jennynary
 
 __END__
+
 =pod
 
 =head1 NAME
@@ -171,7 +174,7 @@ Number::Nary - encode and decode numbers as n-ary strings
 
 =head1 VERSION
 
-version 1.100311
+version 1.100312
 
 =head1 SYNOPSIS
 
@@ -281,14 +284,13 @@ recognize ambiguous digit sets.
 
 =head1 AUTHOR
 
-  Ricardo Signes <rjbs@cpan.org>
+Ricardo Signes <rjbs@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2010 by Ricardo Signes.
+This software is copyright (c) 2013 by Ricardo Signes.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

@@ -7,12 +7,12 @@ Makefile.PL
 README
 dist.ini
 lib/Number/Nary.pm
-t/00-load.t
+t/00-compile.t
+t/000-report-versions-tiny.t
 t/basic.t
-t/boilerplate.t
 t/google.t
 t/pair.t
 t/recloc.t
-t/release-pod-coverage.t
-t/release-pod-syntax.t
 t/wide.t
+xt/release/changes_has_content.t
+xt/release/pod-syntax.t
